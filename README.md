@@ -311,7 +311,7 @@ De functionele en technische uitwerking staan in het **Functioneel Ontwerp (FO)*
 Een logische volgende technische volgorde:
 
 1. De schema-per-klant-proof-of-concept en databaseafspraken valideren.
-2. Authentificatie en toegangscontrole bouwen.
+2. Authenticatie en toegangscontrole bouwen.
 3. De eerste alert-API en bijbehorende tests maken.
 4. React-schermen met de API verbinden.
 5. Cases, onderzoekstijdlijn en overige user stories uitwerken.
