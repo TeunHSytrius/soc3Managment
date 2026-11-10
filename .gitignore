@@ -1,0 +1,118 @@
+
+# SOC Groep 3 - .gitignore
+# .NET 10 | React | TypeScript | Vite | SQL Server
+
+# .NET
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+publish/
+*.binlog
+
+# IDE
+.idea/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# Node.js / React / Vite
+node_modules/
+dist/
+dist-ssr/
+.vite/
+.npm/
+.pnpm-store/
+*.tsbuildinfo
+vite.config.*.timestamp-*.mjs
+
+# ESLint
+.eslintcache
+
+# Logs / tijdelijke bestanden
+*.log
+*.tmp
+*.temp
+*.bak
+*.cache
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Tests / coverage
+TestResults/
+coverage/
+coverage-report/
+.nyc_output/
+playwright-report/
+test-results/
+BenchmarkDotNet.Artifacts/
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/packages/
+
+# Configuratie / secrets
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+secrets.json
+**/secrets/
+*.secret
+*.secrets
+
+# SQL Server / databases
+*.mdf
+*.ldf
+*.ndf
+*.db
+*.sqlite
+*.sqlite3
+*.bacpac
+*.dacpac
+
+# Certificaten
+*.pfx
+*.p12
+*.key
+*.pem
+
+# Deployment
+*.publishsettings
+*.pubxml
+*.pubxml.user
+*.azurePubxml
+PublishProfiles/
+PublishScripts/
+
+# Runtime / uploads
+logs/
+Logs/
+uploads/
+private-storage/
+temp-uploads/
