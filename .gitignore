@@ -1,8 +1,8 @@
 
-# SOC Groep 3 - .gitignore
-# .NET 10 | React | TypeScript | Vite | SQL Server
+# SOC3 - .gitignore
+# .NET 10 | ASP.NET Core | React | TypeScript | Vite | SQL Server
 
-# .NET
+# .NET - Buildbestanden
 [Bb]in/
 [Oo]bj/
 [Dd]ebug/
@@ -11,9 +11,9 @@ artifacts/
 publish/
 *.binlog
 
-# IDE
-.idea/
+# Visual Studio / Rider / ReSharper
 .vs/
+.idea/
 *.suo
 *.user
 *.userosscache
@@ -22,13 +22,14 @@ publish/
 _ReSharper*/
 *.[Rr]e[Ss]harper
 
+# VS Code - Lokale instellingen
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 
-# Node.js / React / Vite
+# Node.js / npm / React / Vite
 node_modules/
 dist/
 dist-ssr/
@@ -38,10 +39,13 @@ dist-ssr/
 *.tsbuildinfo
 vite.config.*.timestamp-*.mjs
 
-# ESLint
+# ESLint / caches
 .eslintcache
+.cache/
+.parcel-cache/
+.turbo/
 
-# Logs / tijdelijke bestanden
+# Logs en tijdelijke bestanden
 *.log
 *.tmp
 *.temp
@@ -54,7 +58,7 @@ vite.config.*.timestamp-*.mjs
 Thumbs.db
 Desktop.ini
 
-# Tests / coverage
+# Tests en coverage
 TestResults/
 coverage/
 coverage-report/
@@ -72,7 +76,7 @@ BenchmarkDotNet.Artifacts/
 packages/
 .nuget/packages/
 
-# Configuratie / secrets
+# Lokale configuratie en geheimen
 appsettings.Development.json
 appsettings.Local.json
 appsettings.*.local.json
@@ -86,7 +90,7 @@ secrets.json
 *.secret
 *.secrets
 
-# SQL Server / databases
+# SQL Server en lokale databases
 *.mdf
 *.ldf
 *.ndf
@@ -96,13 +100,13 @@ secrets.json
 *.bacpac
 *.dacpac
 
-# Certificaten
+# Certificaten en private keys
 *.pfx
 *.p12
 *.key
 *.pem
 
-# Deployment
+# Deployment en publicatie-instellingen
 *.publishsettings
 *.pubxml
 *.pubxml.user
@@ -110,9 +114,14 @@ secrets.json
 PublishProfiles/
 PublishScripts/
 
-# Runtime / uploads
+# Runtimebestanden en uploads
 logs/
 Logs/
 uploads/
 private-storage/
 temp-uploads/
+
+# Lokale containers en overrides
+docker-compose.override.yml
+compose.override.yaml
+compose.override.yml
