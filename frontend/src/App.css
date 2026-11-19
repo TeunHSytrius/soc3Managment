@@ -182,3 +182,10 @@
     border-right-color: var(--border);
   }
 }
+
+.HeaderLogo {
+  width: 50px;
+  height: auto;
+  margin-left: 20px;
+  align-self: left;
+}
