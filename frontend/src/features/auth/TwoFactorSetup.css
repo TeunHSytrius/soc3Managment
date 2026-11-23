@@ -42,6 +42,24 @@
   word-break: break-all;
 }
 
+.two-factor-result .two-factor-form {
+  margin-top: 1.5rem;
+}
+
+.two-factor-recovery-codes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.25rem 1rem;
+  padding: 0;
+  list-style: none;
+  font-family: var(--mono);
+}
+
+.two-factor-success {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
 .two-factor-error {
   color: #d32f2f;
 }

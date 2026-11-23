@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using OtpNet;
 using Soc.Business.DTOs;
 using Soc.Business.Exceptions;
@@ -15,13 +17,24 @@ public sealed class TwoFactorService : ITwoFactorService
     // 20 bytes = 160 bits, the length recommended for TOTP (RFC 4226).
     private const int SecretLengthInBytes = 20;
 
+    private const int CodeLength = 6;
+
+    // After this many wrong codes during login the user is blocked for a while (brute-force protection).
+    public const int MaxFailedAttempts = 5;
+    public static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(5);
+
+    // Also accept the code of 30 seconds before and after, in case the phone clock is slightly off.
+    private static readonly VerificationWindow ClockDriftWindow = new(previous: 1, future: 1);
+
     private readonly ITwoFactorRepository _repository;
     private readonly ISecretProtector _secretProtector;
+    private readonly TimeProvider _timeProvider;
 
-    public TwoFactorService(ITwoFactorRepository repository, ISecretProtector secretProtector)
+    public TwoFactorService(ITwoFactorRepository repository, ISecretProtector secretProtector, TimeProvider timeProvider)
     {
         _repository = repository;
         _secretProtector = secretProtector;
+        _timeProvider = timeProvider;
     }
 
     public async Task<TwoFactorSetupResponse> StartSetupAsync(StartTwoFactorSetupRequest request, CancellationToken cancellationToken = default)
@@ -50,6 +63,138 @@ public sealed class TwoFactorService : ITwoFactorService
         return new TwoFactorSetupResponse(
             BuildOtpAuthUri(request.Email.Trim(), base32Secret),
             FormatManualEntryKey(base32Secret));
+    }
+
+    public async Task<EnableTwoFactorResponse> EnableAsync(EnableTwoFactorRequest request, CancellationToken cancellationToken = default)
+    {
+        var userTwoFactor = await _repository.GetByUserIdAsync(request.UserId, cancellationToken);
+
+        if (userTwoFactor is { IsEnabled: true })
+        {
+            throw new TwoFactorAlreadyEnabledException(request.UserId);
+        }
+
+        if (userTwoFactor?.PendingProtectedSecret is null)
+        {
+            throw new TwoFactorSetupNotStartedException(request.UserId);
+        }
+
+        // #164: only enable when the user proves the authenticator app produces correct codes.
+        if (!TryVerifyTotp(userTwoFactor.PendingProtectedSecret, request.Code, lastUsedTimeStep: 0, out long timeStep))
+        {
+            throw new InvalidTwoFactorCodeException();
+        }
+
+        // #166: generate recovery codes; store only hashes, return the plain codes once.
+        IReadOnlyList<string> recoveryCodes = RecoveryCodes.Generate();
+
+        userTwoFactor.ProtectedSecret = userTwoFactor.PendingProtectedSecret;
+        userTwoFactor.PendingProtectedSecret = null;
+        userTwoFactor.IsEnabled = true;
+        userTwoFactor.LastUsedTimeStep = timeStep;
+        userTwoFactor.RecoveryCodeHashes = recoveryCodes.Select(RecoveryCodes.Hash).ToList();
+        userTwoFactor.FailedAttempts = 0;
+        userTwoFactor.LockedUntil = null;
+
+        await _repository.SaveAsync(userTwoFactor, cancellationToken);
+
+        return new EnableTwoFactorResponse(recoveryCodes);
+    }
+
+    public async Task<TwoFactorVerificationResult> VerifyLoginAsync(int userId, string code, CancellationToken cancellationToken = default)
+    {
+        var userTwoFactor = await _repository.GetByUserIdAsync(userId, cancellationToken);
+
+        if (userTwoFactor is not { IsEnabled: true, ProtectedSecret: not null })
+        {
+            return TwoFactorVerificationResult.NotEnabled;
+        }
+
+        DateTimeOffset now = _timeProvider.GetUtcNow();
+
+        if (userTwoFactor.LockedUntil > now)
+        {
+            return TwoFactorVerificationResult.LockedOut;
+        }
+
+        bool isValid = false;
+
+        if (TryVerifyTotp(userTwoFactor.ProtectedSecret, code, userTwoFactor.LastUsedTimeStep, out long timeStep))
+        {
+            userTwoFactor.LastUsedTimeStep = timeStep;
+            isValid = true;
+        }
+        else if (TryRedeemRecoveryCode(userTwoFactor, code))
+        {
+            isValid = true;
+        }
+
+        if (isValid)
+        {
+            userTwoFactor.FailedAttempts = 0;
+            userTwoFactor.LockedUntil = null;
+            await _repository.SaveAsync(userTwoFactor, cancellationToken);
+            return TwoFactorVerificationResult.Success;
+        }
+
+        userTwoFactor.FailedAttempts++;
+
+        if (userTwoFactor.FailedAttempts >= MaxFailedAttempts)
+        {
+            userTwoFactor.FailedAttempts = 0;
+            userTwoFactor.LockedUntil = now + LockoutDuration;
+            await _repository.SaveAsync(userTwoFactor, cancellationToken);
+            return TwoFactorVerificationResult.LockedOut;
+        }
+
+        await _repository.SaveAsync(userTwoFactor, cancellationToken);
+        return TwoFactorVerificationResult.InvalidCode;
+    }
+
+    public async Task<bool> IsEnabledAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        var userTwoFactor = await _repository.GetByUserIdAsync(userId, cancellationToken);
+        return userTwoFactor?.IsEnabled == true;
+    }
+
+    /// <summary>
+    /// Checks a 6-digit code against the secret. A code whose time step was already used
+    /// (or is older) is rejected, so every code works only once.
+    /// </summary>
+    private bool TryVerifyTotp(string protectedSecret, string code, long lastUsedTimeStep, out long timeStep)
+    {
+        timeStep = 0;
+        string normalizedCode = code.Replace(" ", string.Empty).Trim();
+
+        if (normalizedCode.Length != CodeLength || !normalizedCode.All(char.IsAsciiDigit))
+        {
+            return false;
+        }
+
+        byte[] secret = Base32Encoding.ToBytes(_secretProtector.Unprotect(protectedSecret));
+        var totp = new Totp(secret);
+        DateTime now = _timeProvider.GetUtcNow().UtcDateTime;
+
+        return totp.VerifyTotp(now, normalizedCode, out timeStep, ClockDriftWindow)
+            && timeStep > lastUsedTimeStep;
+    }
+
+    /// <summary>
+    /// Accepts an unused recovery code and removes it, so it cannot be used again.
+    /// </summary>
+    private static bool TryRedeemRecoveryCode(UserTwoFactor userTwoFactor, string code)
+    {
+        if (!RecoveryCodes.LooksLikeRecoveryCode(code))
+        {
+            return false;
+        }
+
+        byte[] inputHash = Encoding.ASCII.GetBytes(RecoveryCodes.Hash(code));
+
+        string? match = userTwoFactor.RecoveryCodeHashes.FirstOrDefault(
+            storedHash => CryptographicOperations.FixedTimeEquals(Encoding.ASCII.GetBytes(storedHash), inputHash));
+
+        return match is not null && userTwoFactor.RecoveryCodeHashes.Remove(match);
     }
 
     /// <summary>

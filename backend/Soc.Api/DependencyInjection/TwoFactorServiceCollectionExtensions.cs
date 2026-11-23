@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soc.Api.Security;
 using Soc.Business.Repositories;
 using Soc.Business.Security;
@@ -18,6 +19,7 @@ public static class TwoFactorServiceCollectionExtensions
         // otherwise stored secrets can no longer be decrypted after the keys are lost.
         services.AddDataProtection();
         services.AddSingleton<ISecretProtector, DataProtectionSecretProtector>();
+        services.TryAddSingleton(TimeProvider.System);
 
         // Singleton because the in-memory store must survive between requests.
         // Replace with the EF Core repository (scoped) once the database is available.

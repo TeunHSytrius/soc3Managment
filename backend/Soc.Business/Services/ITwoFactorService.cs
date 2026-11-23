@@ -12,4 +12,18 @@ public interface ITwoFactorService
     /// 2FA is not active until the user confirms it with a first valid code.
     /// </summary>
     Task<TwoFactorSetupResponse> StartSetupAsync(StartTwoFactorSetupRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Enables 2FA only when the code matches the pending secret (#164) and
+    /// returns new one-time recovery codes (#166).
+    /// </summary>
+    Task<EnableTwoFactorResponse> EnableAsync(EnableTwoFactorRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks the second factor during login (#165): a code from the authenticator app
+    /// or an unused recovery code. To be called by the login flow after the password check.
+    /// </summary>
+    Task<TwoFactorVerificationResult> VerifyLoginAsync(int userId, string code, CancellationToken cancellationToken = default);
+
+    Task<bool> IsEnabledAsync(int userId, CancellationToken cancellationToken = default);
 }

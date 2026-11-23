@@ -2,7 +2,7 @@ namespace Soc.Business.Models;
 
 /// <summary>
 /// Two-factor (TOTP) state of a single user. Secrets are only ever stored in
-/// protected (encrypted) form; the plain secret never leaves the service.
+/// protected (encrypted) form and recovery codes only as hashes.
 /// </summary>
 public sealed class UserTwoFactor
 {
@@ -19,4 +19,19 @@ public sealed class UserTwoFactor
     public string? ProtectedSecret { get; set; }
 
     public bool IsEnabled { get; set; }
+
+    /// <summary>
+    /// TOTP time step of the last accepted code. A code is only accepted once,
+    /// so an intercepted code cannot be replayed.
+    /// </summary>
+    public long LastUsedTimeStep { get; set; }
+
+    /// <summary>
+    /// SHA-256 hashes of the recovery codes that have not been used yet.
+    /// </summary>
+    public List<string> RecoveryCodeHashes { get; set; } = [];
+
+    public int FailedAttempts { get; set; }
+
+    public DateTimeOffset? LockedUntil { get; set; }
 }

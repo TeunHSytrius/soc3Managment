@@ -12,3 +12,22 @@ public sealed record StartTwoFactorSetupRequest(int UserId, string Email);
 /// <param name="OtpAuthUri">otpauth:// link that is shown as a QR code and scanned by the authenticator app.</param>
 /// <param name="ManualEntryKey">Same secret in readable groups, for users who cannot scan the QR code.</param>
 public sealed record TwoFactorSetupResponse(string OtpAuthUri, string ManualEntryKey);
+
+/// <summary>
+/// Request to enable 2FA with the first code from the authenticator app.
+/// TODO: remove UserId once login exists; take it from the authenticated user instead.
+/// </summary>
+public sealed record EnableTwoFactorRequest(int UserId, string Code);
+
+/// <summary>
+/// Returned once after enabling 2FA. The recovery codes are never shown again.
+/// </summary>
+public sealed record EnableTwoFactorResponse(IReadOnlyList<string> RecoveryCodes);
+
+public enum TwoFactorVerificationResult
+{
+    Success,
+    InvalidCode,
+    LockedOut,
+    NotEnabled,
+}
