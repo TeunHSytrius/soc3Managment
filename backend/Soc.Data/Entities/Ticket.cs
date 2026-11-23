@@ -11,7 +11,7 @@ public class Ticket
     [Required] public DateTimeOffset Deadline { get; set; }
     public DateTimeOffset? ResolvedAt { get; set; }
 
-    public int ResolvedById { get; set; }
+    public int? ResolvedById { get; set; }
     public Employee? ResolvedBy { get; set; }
 
     [Required] public int AlertId { get; set; }
