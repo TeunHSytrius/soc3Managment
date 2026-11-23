@@ -1,13 +1,22 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { getAuthErrorMessage } from "./authErrors";
+import { simulateLoginRequest } from "./mockAuthService";
 import "./LoginPage.css";
 
 function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  const requestInProgress = useRef(false);
+
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (requestInProgress.current) {
+      return;
+    }
 
     setError("");
 
@@ -19,6 +28,20 @@ function LoginPage() {
     if (password === "") {
       setError("Vul je wachtwoord in.");
       return;
+    }
+
+    requestInProgress.current = true;
+    setIsLoading(true);
+
+    try {
+      const errorCode = await simulateLoginRequest();
+
+      setError(getAuthErrorMessage(errorCode));
+    } catch {
+      setError(getAuthErrorMessage("networkError"));
+    } finally {
+      requestInProgress.current = false;
+      setIsLoading(false);
     }
   }
 
@@ -40,7 +63,12 @@ function LoginPage() {
           <p>Log in om beveiligingsmeldingen en onderzoeken te beheren.</p>
         </div>
 
-        <form className="login-form" onSubmit={handleSubmit} noValidate>
+        <form
+          className="login-form"
+          onSubmit={handleSubmit}
+          noValidate
+          aria-busy={isLoading}
+        >
           <div className="login-field">
             <label htmlFor="username">Gebruikersnaam of e-mailadres</label>
             <input
@@ -71,7 +99,9 @@ function LoginPage() {
             </p>
           )}
 
-          <button type="submit">Inloggen</button>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "Bezig met inloggen..." : "Inloggen"}
+          </button>
         </form>
 
         <p className="login-footer">SOC Casemanagementplatform</p>
