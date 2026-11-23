@@ -1,3 +1,8 @@
+using Soc.Api.ExceptionHandling;
+using Soc.Business.Repositories;
+using Soc.Business.Services;
+using Soc.Data.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +10,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+// Customer management (US-20 / FR-16).
+// The repository is an in-memory stand-in while the SQL Server data layer is
+// developed separately; swap InMemoryCustomerRepository for the EF Core
+// implementation once it is available.
+builder.Services.AddScoped<ICustomerRepository, InMemoryCustomerRepository>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 var app = builder.Build();
 
@@ -15,6 +30,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseExceptionHandler();
 
 app.UseAuthorization();
 
