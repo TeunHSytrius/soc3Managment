@@ -14,12 +14,12 @@ builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-// Customer management (US-20 / FR-16).
+// Organization management (US-20 / FR-16).
 // The repository is an in-memory stand-in while the SQL Server data layer is
-// developed separately; swap InMemoryCustomerRepository for the EF Core
+// developed separately; swap InMemoryOrganizationRepository for the EF Core
 // implementation once it is available.
-builder.Services.AddScoped<ICustomerRepository, InMemoryCustomerRepository>();
-builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IOrganizationRepository, InMemoryOrganizationRepository>();
+builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 
 var app = builder.Build();
 

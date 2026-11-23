@@ -1,17 +1,17 @@
 namespace Soc.Business.DTOs;
 
 /// <summary>
-/// Request body for creating a customer. At least a name is required.
+/// Request body for creating a tenant organisation. At least a name is required.
 /// </summary>
-public record CreateCustomerRequest
+public record CreateOrganizationRequest
 {
     public string Name { get; init; } = string.Empty;
 }
 
 /// <summary>
-/// Response model for a customer.
+/// Response model for a tenant organisation.
 /// </summary>
-public record CustomerResponse
+public record OrganizationResponse
 {
     public Guid Id { get; init; }
 

@@ -2,17 +2,17 @@ namespace Soc.Business.Models;
 
 /// <summary>
 /// Represents a customer organisation (tenant) served by the SOC.
-/// Customer data lives in the platform schema. Deactivating a customer is a
+/// Tenant data lives in the platform schema. Deactivating a tenant is a
 /// soft operation: the record is preserved so existing data stays available.
 /// </summary>
-public class Customer
+public class Organization
 {
     public Guid Id { get; set; }
 
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Whether this customer can still receive new alerts. Inactive customers
+    /// Whether this tenant can still receive new alerts. Inactive tenants
     /// keep their existing data but no longer accept ingestion.
     /// </summary>
     public bool IsActive { get; set; }
@@ -22,11 +22,11 @@ public class Customer
     public DateTimeOffset? DeactivatedAt { get; set; }
 
     /// <summary>
-    /// Creates a new active customer with a generated identifier.
+    /// Creates a new active tenant with a generated identifier.
     /// </summary>
-    public static Customer Create(string name)
+    public static Organization Create(string name)
     {
-        return new Customer
+        return new Organization
         {
             Id = Guid.NewGuid(),
             Name = name,
@@ -37,7 +37,7 @@ public class Customer
     }
 
     /// <summary>
-    /// Marks the customer as inactive. Existing data is preserved.
+    /// Marks the tenant as inactive. Existing data is preserved.
     /// </summary>
     public void Deactivate()
     {

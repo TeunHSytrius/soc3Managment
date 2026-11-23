@@ -1,4 +1,4 @@
-export interface CustomerResponse {
+export interface OrganizationResponse {
   id: string;
   name: string;
   isActive: boolean;
@@ -6,6 +6,6 @@ export interface CustomerResponse {
   deactivatedAt: string | null;
 }
 
-export interface CreateCustomerRequest {
+export interface CreateOrganizationRequest {
   name: string;
 }

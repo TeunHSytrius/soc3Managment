@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { createCustomer, deactivateCustomer, fetchCustomers } from '../../services/customers';
-import type { CustomerResponse } from '../../types/customer';
-import './CustomerManagement.css';
+import { createOrganization, deactivateOrganization, fetchOrganizations } from '../../services/organizations';
+import type { OrganizationResponse } from '../../types/organization';
+import './OrganizationManagement.css';
 
-export function CustomerManagement() {
-  const [customers, setCustomers] = useState<CustomerResponse[]>([]);
+export function OrganizationManagement() {
+  const [organizations, setOrganizations] = useState<OrganizationResponse[]>([]);
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -15,9 +15,9 @@ export function CustomerManagement() {
     let active = true;
     void (async () => {
       try {
-        const data = await fetchCustomers();
+        const data = await fetchOrganizations();
         if (active) {
-          setCustomers(data);
+          setOrganizations(data);
         }
       } catch (err) {
         if (active) {
@@ -43,8 +43,8 @@ export function CustomerManagement() {
     setSubmitting(true);
     setError(null);
     try {
-      const created = await createCustomer({ name: trimmed });
-      setCustomers((previous) => [created, ...previous]);
+      const created = await createOrganization({ name: trimmed });
+      setOrganizations((previous) => [created, ...previous]);
       setName('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Onbekende fout.');
@@ -56,9 +56,9 @@ export function CustomerManagement() {
   const handleDeactivate = async (id: string) => {
     setError(null);
     try {
-      const updated = await deactivateCustomer(id);
-      setCustomers((previous) =>
-        previous.map((customer) => (customer.id === updated.id ? updated : customer)),
+      const updated = await deactivateOrganization(id);
+      setOrganizations((previous) =>
+        previous.map((organization) => (organization.id === updated.id ? updated : organization)),
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Onbekende fout.');
@@ -66,22 +66,22 @@ export function CustomerManagement() {
   };
 
   return (
-    <section className="customer-management">
-      <h2>Klanten</h2>
+    <section className="organization-management">
+      <h2>Organisaties</h2>
 
       {error !== null && (
-        <p className="customer-management__error" role="alert">
+        <p className="organization-management__error" role="alert">
           {error}
         </p>
       )}
 
-      <form className="customer-management__form" onSubmit={handleCreate}>
-        <label className="customer-management__label" htmlFor="customer-name">
+      <form className="organization-management__form" onSubmit={handleCreate}>
+        <label className="organization-management__label" htmlFor="organization-name">
           Naam
         </label>
         <input
-          id="customer-name"
-          className="customer-management__input"
+          id="organization-name"
+          className="organization-management__input"
           type="text"
           value={name}
           onChange={(event) => setName(event.target.value)}
@@ -89,20 +89,20 @@ export function CustomerManagement() {
           disabled={submitting}
         />
         <button
-          className="customer-management__button"
+          className="organization-management__button"
           type="submit"
           disabled={submitting || name.trim() === ''}
         >
-          {submitting ? 'Aanmaken…' : 'Klant aanmaken'}
+          {submitting ? 'Aanmaken…' : 'Organisatie aanmaken'}
         </button>
       </form>
 
       {loading ? (
-        <p>Klanten laden…</p>
-      ) : customers.length === 0 ? (
-        <p>Er zijn nog geen klanten.</p>
+        <p>Organisaties laden…</p>
+      ) : organizations.length === 0 ? (
+        <p>Er zijn nog geen organisaties.</p>
       ) : (
-        <table className="customer-management__table">
+        <table className="organization-management__table">
           <thead>
             <tr>
               <th>Naam</th>
@@ -112,27 +112,27 @@ export function CustomerManagement() {
             </tr>
           </thead>
           <tbody>
-            {customers.map((customer) => (
-              <tr key={customer.id}>
-                <td>{customer.name}</td>
+            {organizations.map((organization) => (
+              <tr key={organization.id}>
+                <td>{organization.name}</td>
                 <td>
                   <span
                     className={
-                      customer.isActive
-                        ? 'customer-management__badge customer-management__badge--active'
-                        : 'customer-management__badge customer-management__badge--inactive'
+                      organization.isActive
+                        ? 'organization-management__badge organization-management__badge--active'
+                        : 'organization-management__badge organization-management__badge--inactive'
                     }
                   >
-                    {customer.isActive ? 'Actief' : 'Inactief'}
+                    {organization.isActive ? 'Actief' : 'Inactief'}
                   </span>
                 </td>
-                <td>{new Date(customer.createdAt).toLocaleDateString('nl-NL')}</td>
+                <td>{new Date(organization.createdAt).toLocaleDateString('nl-NL')}</td>
                 <td>
-                  {customer.isActive && (
+                  {organization.isActive && (
                     <button
                       type="button"
-                      className="customer-management__button customer-management__button--danger"
-                      onClick={() => void handleDeactivate(customer.id)}
+                      className="organization-management__button organization-management__button--danger"
+                      onClick={() => void handleDeactivate(organization.id)}
                     >
                       Deactiveren
                     </button>

@@ -5,19 +5,19 @@ using Soc.Data.Repositories;
 
 namespace Soc.Tests;
 
-public class CustomerServiceTests
+public class OrganizationServiceTests
 {
-    private static CustomerService CreateService()
+    private static OrganizationService CreateService()
     {
-        return new CustomerService(new InMemoryCustomerRepository());
+        return new OrganizationService(new InMemoryOrganizationRepository());
     }
 
     [Fact]
-    public async Task CreateAsync_WithValidName_CreatesActiveCustomer()
+    public async Task CreateAsync_WithValidName_CreatesActiveOrganization()
     {
         var service = CreateService();
 
-        var response = await service.CreateAsync(new CreateCustomerRequest { Name = "Acme Bank" });
+        var response = await service.CreateAsync(new CreateOrganizationRequest { Name = "Acme Bank" });
 
         Assert.NotEqual(Guid.Empty, response.Id);
         Assert.Equal("Acme Bank", response.Name);
@@ -30,7 +30,7 @@ public class CustomerServiceTests
     {
         var service = CreateService();
 
-        var response = await service.CreateAsync(new CreateCustomerRequest { Name = "  Klant A  " });
+        var response = await service.CreateAsync(new CreateOrganizationRequest { Name = "  Klant A  " });
 
         Assert.Equal("Klant A", response.Name);
     }
@@ -41,7 +41,7 @@ public class CustomerServiceTests
         var service = CreateService();
 
         await Assert.ThrowsAsync<ValidationException>(
-            () => service.CreateAsync(new CreateCustomerRequest { Name = "   " }));
+            () => service.CreateAsync(new CreateOrganizationRequest { Name = "   " }));
     }
 
     [Fact]
@@ -50,16 +50,16 @@ public class CustomerServiceTests
         var service = CreateService();
 
         await Assert.ThrowsAsync<ValidationException>(
-            () => service.CreateAsync(new CreateCustomerRequest { Name = null! }));
+            () => service.CreateAsync(new CreateOrganizationRequest { Name = null! }));
     }
 
     [Fact]
     public async Task DeactivateAsync_MarksInactiveAndPreservesExistingData()
     {
-        var repository = new InMemoryCustomerRepository();
-        var service = new CustomerService(repository);
+        var repository = new InMemoryOrganizationRepository();
+        var service = new OrganizationService(repository);
 
-        var created = await service.CreateAsync(new CreateCustomerRequest { Name = "Klant A" });
+        var created = await service.CreateAsync(new CreateOrganizationRequest { Name = "Klant A" });
 
         var deactivated = await service.DeactivateAsync(created.Id);
 
@@ -78,7 +78,7 @@ public class CustomerServiceTests
     {
         var service = CreateService();
 
-        await Assert.ThrowsAsync<CustomerNotFoundException>(
+        await Assert.ThrowsAsync<OrganizationNotFoundException>(
             () => service.DeactivateAsync(Guid.NewGuid()));
     }
 
@@ -86,7 +86,7 @@ public class CustomerServiceTests
     public async Task DeactivateAsync_AlreadyInactive_IsIdempotent()
     {
         var service = CreateService();
-        var created = await service.CreateAsync(new CreateCustomerRequest { Name = "Klant B" });
+        var created = await service.CreateAsync(new CreateOrganizationRequest { Name = "Klant B" });
 
         await service.DeactivateAsync(created.Id);
         var again = await service.DeactivateAsync(created.Id);
@@ -95,46 +95,46 @@ public class CustomerServiceTests
     }
 
     [Fact]
-    public async Task GetAllAsync_ReturnsActiveAndInactiveCustomers()
+    public async Task GetAllAsync_ReturnsActiveAndInactiveOrganizations()
     {
         var service = CreateService();
-        await service.CreateAsync(new CreateCustomerRequest { Name = "Actief" });
-        var toDeactivate = await service.CreateAsync(new CreateCustomerRequest { Name = "Wordt inactief" });
+        await service.CreateAsync(new CreateOrganizationRequest { Name = "Actief" });
+        var toDeactivate = await service.CreateAsync(new CreateOrganizationRequest { Name = "Wordt inactief" });
         await service.DeactivateAsync(toDeactivate.Id);
 
-        var customers = await service.GetAllAsync();
+        var organizations = await service.GetAllAsync();
 
-        Assert.Equal(2, customers.Count);
-        Assert.Contains(customers, c => c.Name == "Actief" && c.IsActive);
-        Assert.Contains(customers, c => c.Name == "Wordt inactief" && !c.IsActive);
+        Assert.Equal(2, organizations.Count);
+        Assert.Contains(organizations, c => c.Name == "Actief" && c.IsActive);
+        Assert.Contains(organizations, c => c.Name == "Wordt inactief" && !c.IsActive);
     }
 
     [Fact]
-    public async Task EnsureCanReceiveAlertsAsync_ActiveCustomer_DoesNotThrow()
+    public async Task EnsureCanReceiveAlertsAsync_ActiveOrganization_DoesNotThrow()
     {
         var service = CreateService();
-        var created = await service.CreateAsync(new CreateCustomerRequest { Name = "Klant C" });
+        var created = await service.CreateAsync(new CreateOrganizationRequest { Name = "Klant C" });
 
         await service.EnsureCanReceiveAlertsAsync(created.Id);
     }
 
     [Fact]
-    public async Task EnsureCanReceiveAlertsAsync_InactiveCustomer_ThrowsInactive()
+    public async Task EnsureCanReceiveAlertsAsync_InactiveOrganization_ThrowsInactive()
     {
         var service = CreateService();
-        var created = await service.CreateAsync(new CreateCustomerRequest { Name = "Klant D" });
+        var created = await service.CreateAsync(new CreateOrganizationRequest { Name = "Klant D" });
         await service.DeactivateAsync(created.Id);
 
-        await Assert.ThrowsAsync<CustomerInactiveException>(
+        await Assert.ThrowsAsync<OrganizationInactiveException>(
             () => service.EnsureCanReceiveAlertsAsync(created.Id));
     }
 
     [Fact]
-    public async Task EnsureCanReceiveAlertsAsync_UnknownCustomer_ThrowsNotFound()
+    public async Task EnsureCanReceiveAlertsAsync_UnknownOrganization_ThrowsNotFound()
     {
         var service = CreateService();
 
-        await Assert.ThrowsAsync<CustomerNotFoundException>(
+        await Assert.ThrowsAsync<OrganizationNotFoundException>(
             () => service.EnsureCanReceiveAlertsAsync(Guid.NewGuid()));
     }
 }

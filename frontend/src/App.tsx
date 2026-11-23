@@ -1,10 +1,10 @@
-import { CustomerManagement } from './features/customers/CustomerManagement';
+import { OrganizationManagement } from './features/organizations/OrganizationManagement';
 
 function App() {
   return (
     <main>
       <h1>SOC Casemanagementplatform</h1>
-      <CustomerManagement />
+      <OrganizationManagement />
     </main>
   );
 }

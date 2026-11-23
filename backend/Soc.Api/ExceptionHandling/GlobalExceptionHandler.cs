@@ -23,8 +23,8 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         var (status, title, logLevel) = exception switch
         {
             ValidationException => (StatusCodes.Status400BadRequest, "Validatiefout", LogLevel.Information),
-            CustomerNotFoundException => (StatusCodes.Status404NotFound, "Klant niet gevonden", LogLevel.Information),
-            CustomerInactiveException => (StatusCodes.Status409Conflict, "Klant gedeactiveerd", LogLevel.Information),
+            OrganizationNotFoundException => (StatusCodes.Status404NotFound, "Organisatie niet gevonden", LogLevel.Information),
+            OrganizationInactiveException => (StatusCodes.Status409Conflict, "Organisatie gedeactiveerd", LogLevel.Information),
             _ => (StatusCodes.Status500InternalServerError, "Er is een onverwachte fout opgetreden.", LogLevel.Error),
         };
 
