@@ -29,4 +29,15 @@ public sealed class InMemoryTwoFactorRepository : ITwoFactorRepository
 
         return Task.CompletedTask;
     }
+
+    public Task<bool> TryConsumeRecoveryCodeAsync(int userId, string recoveryCodeHash, CancellationToken cancellationToken = default)
+    {
+        lock (_lock)
+        {
+            bool removed = _items.TryGetValue(userId, out var item)
+                && item.RecoveryCodeHashes.Remove(recoveryCodeHash);
+
+            return Task.FromResult(removed);
+        }
+    }
 }

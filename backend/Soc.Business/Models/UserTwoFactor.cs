@@ -14,6 +14,11 @@ public sealed class UserTwoFactor
     public string? PendingProtectedSecret { get; set; }
 
     /// <summary>
+    /// Moment after which the unconfirmed setup is no longer valid and must be started again.
+    /// </summary>
+    public DateTimeOffset? PendingSetupExpiresAt { get; set; }
+
+    /// <summary>
     /// Confirmed secret that is used during login once 2FA is enabled.
     /// </summary>
     public string? ProtectedSecret { get; set; }

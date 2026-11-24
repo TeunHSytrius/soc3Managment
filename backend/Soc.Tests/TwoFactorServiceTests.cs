@@ -166,7 +166,62 @@ public sealed class TwoFactorServiceTests
             () => _service.EnableAsync(new EnableTwoFactorRequest(UserId, CodeAt(secret, StartTime.AddMinutes(-2)))));
     }
 
+    [Fact]
+    public async Task Enable_AfterSetupExpired_ThrowsAndStaysDisabled()
+    {
+        string secret = await StartSetupAsync();
+        _time.Advance(TwoFactorService.PendingSetupLifetime + TimeSpan.FromSeconds(1));
+
+        await Assert.ThrowsAsync<TwoFactorSetupNotStartedException>(
+            () => _service.EnableAsync(new EnableTwoFactorRequest(UserId, CodeAt(secret, _time.GetUtcNow()))));
+
+        Assert.False(await _service.IsEnabledAsync(UserId));
+    }
+
+    [Fact]
+    public async Task Enable_AfterTooManyWrongCodes_DiscardsSetup()
+    {
+        string secret = await StartSetupAsync();
+
+        for (int i = 0; i < TwoFactorService.MaxFailedAttempts; i++)
+        {
+            await Assert.ThrowsAsync<InvalidTwoFactorCodeException>(
+                () => _service.EnableAsync(new EnableTwoFactorRequest(UserId, "abcdef")));
+        }
+
+        // Even the correct code no longer works; the user has to scan a new QR code.
+        await Assert.ThrowsAsync<TwoFactorSetupNotStartedException>(
+            () => _service.EnableAsync(new EnableTwoFactorRequest(UserId, CodeAt(secret, StartTime))));
+    }
+
+    [Fact]
+    public async Task Enable_AfterAFewTypos_StillWorksWithCorrectCode()
+    {
+        string secret = await StartSetupAsync();
+
+        for (int i = 1; i < TwoFactorService.MaxFailedAttempts; i++)
+        {
+            await Assert.ThrowsAsync<InvalidTwoFactorCodeException>(
+                () => _service.EnableAsync(new EnableTwoFactorRequest(UserId, "abcdef")));
+        }
+
+        await _service.EnableAsync(new EnableTwoFactorRequest(UserId, CodeAt(secret, StartTime)));
+
+        Assert.True(await _service.IsEnabledAsync(UserId));
+    }
+
     // ---------- #166: recovery codes ----------
+
+    [Fact]
+    public async Task VerifyLogin_SameRecoveryCodeAtTheSameTime_OnlyOneSucceeds()
+    {
+        var recoveryCodes = await EnableAndGetRecoveryCodesAsync();
+
+        var results = await Task.WhenAll(Enumerable.Range(0, 10)
+            .Select(_ => Task.Run(() => _service.VerifyLoginAsync(UserId, recoveryCodes[0]))));
+
+        Assert.Single(results, result => result == TwoFactorVerificationResult.Success);
+    }
 
     [Fact]
     public async Task Enable_ReturnsTenUniqueRecoveryCodes_StoredOnlyAsHashes()

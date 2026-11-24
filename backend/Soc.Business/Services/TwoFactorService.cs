@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using OtpNet;
 using Soc.Business.DTOs;
 using Soc.Business.Exceptions;
@@ -19,9 +17,13 @@ public sealed class TwoFactorService : ITwoFactorService
 
     private const int CodeLength = 6;
 
-    // After this many wrong codes during login the user is blocked for a while (brute-force protection).
+    // Brute-force protection: after this many wrong codes the login is blocked for a while,
+    // and an unconfirmed setup is discarded.
     public const int MaxFailedAttempts = 5;
     public static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(5);
+
+    // An unconfirmed setup (QR code scanned, no code entered yet) is only valid this long.
+    public static readonly TimeSpan PendingSetupLifetime = TimeSpan.FromMinutes(10);
 
     // Also accept the code of 30 seconds before and after, in case the phone clock is slightly off.
     private static readonly VerificationWindow ClockDriftWindow = new(previous: 1, future: 1);
@@ -58,6 +60,8 @@ public sealed class TwoFactorService : ITwoFactorService
 
         // Only store the encrypted secret. A new setup replaces an older, unconfirmed one.
         userTwoFactor.PendingProtectedSecret = _secretProtector.Protect(base32Secret);
+        userTwoFactor.PendingSetupExpiresAt = _timeProvider.GetUtcNow() + PendingSetupLifetime;
+        userTwoFactor.FailedAttempts = 0;
         await _repository.SaveAsync(userTwoFactor, cancellationToken);
 
         return new TwoFactorSetupResponse(
@@ -79,9 +83,26 @@ public sealed class TwoFactorService : ITwoFactorService
             throw new TwoFactorSetupNotStartedException(request.UserId);
         }
 
+        // An expired setup can no longer be confirmed; the user has to scan a new QR code.
+        if (userTwoFactor.PendingSetupExpiresAt <= _timeProvider.GetUtcNow())
+        {
+            ClearPendingSetup(userTwoFactor);
+            await _repository.SaveAsync(userTwoFactor, cancellationToken);
+            throw new TwoFactorSetupNotStartedException(request.UserId);
+        }
+
         // #164: only enable when the user proves the authenticator app produces correct codes.
         if (!TryVerifyTotp(userTwoFactor.PendingProtectedSecret, request.Code, lastUsedTimeStep: 0, out long timeStep))
         {
+            userTwoFactor.FailedAttempts++;
+
+            // Too many wrong codes: discard the setup so the code cannot be guessed.
+            if (userTwoFactor.FailedAttempts >= MaxFailedAttempts)
+            {
+                ClearPendingSetup(userTwoFactor);
+            }
+
+            await _repository.SaveAsync(userTwoFactor, cancellationToken);
             throw new InvalidTwoFactorCodeException();
         }
 
@@ -89,11 +110,10 @@ public sealed class TwoFactorService : ITwoFactorService
         IReadOnlyList<string> recoveryCodes = RecoveryCodes.Generate();
 
         userTwoFactor.ProtectedSecret = userTwoFactor.PendingProtectedSecret;
-        userTwoFactor.PendingProtectedSecret = null;
+        ClearPendingSetup(userTwoFactor);
         userTwoFactor.IsEnabled = true;
         userTwoFactor.LastUsedTimeStep = timeStep;
         userTwoFactor.RecoveryCodeHashes = recoveryCodes.Select(RecoveryCodes.Hash).ToList();
-        userTwoFactor.FailedAttempts = 0;
         userTwoFactor.LockedUntil = null;
 
         await _repository.SaveAsync(userTwoFactor, cancellationToken);
@@ -124,7 +144,8 @@ public sealed class TwoFactorService : ITwoFactorService
             userTwoFactor.LastUsedTimeStep = timeStep;
             isValid = true;
         }
-        else if (TryRedeemRecoveryCode(userTwoFactor, code))
+        else if (RecoveryCodes.LooksLikeRecoveryCode(code)
+            && await _repository.TryConsumeRecoveryCodeAsync(userId, RecoveryCodes.Hash(code), cancellationToken))
         {
             isValid = true;
         }
@@ -179,22 +200,11 @@ public sealed class TwoFactorService : ITwoFactorService
             && timeStep > lastUsedTimeStep;
     }
 
-    /// <summary>
-    /// Accepts an unused recovery code and removes it, so it cannot be used again.
-    /// </summary>
-    private static bool TryRedeemRecoveryCode(UserTwoFactor userTwoFactor, string code)
+    private static void ClearPendingSetup(UserTwoFactor userTwoFactor)
     {
-        if (!RecoveryCodes.LooksLikeRecoveryCode(code))
-        {
-            return false;
-        }
-
-        byte[] inputHash = Encoding.ASCII.GetBytes(RecoveryCodes.Hash(code));
-
-        string? match = userTwoFactor.RecoveryCodeHashes.FirstOrDefault(
-            storedHash => CryptographicOperations.FixedTimeEquals(Encoding.ASCII.GetBytes(storedHash), inputHash));
-
-        return match is not null && userTwoFactor.RecoveryCodeHashes.Remove(match);
+        userTwoFactor.PendingProtectedSecret = null;
+        userTwoFactor.PendingSetupExpiresAt = null;
+        userTwoFactor.FailedAttempts = 0;
     }
 
     /// <summary>

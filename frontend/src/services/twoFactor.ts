@@ -37,7 +37,10 @@ export async function enableTwoFactor(
   const response = await postJson("/enable", request);
 
   if (response.status === 400) {
-    throw new Error("De code is onjuist of verlopen. Probeer de nieuwste code uit de app.");
+    throw new Error(
+      "De code is onjuist of verlopen. Probeer de nieuwste code uit de app. " +
+        "Blijft het misgaan? Ververs de pagina en scan een nieuwe QR-code.",
+    );
   }
 
   if (response.status === 409) {
