@@ -51,9 +51,9 @@ export function AppShell({
           <div className="AppShell__customer">
             {canSwitchCustomer ? (
               <>
-                <label htmlFor={customerSelectId}>Actieve klant</label>
                 <select
                   id={customerSelectId}
+                  aria-label="Actieve klant"
                   value={customer.id}
                   onChange={(event) => onCustomerChange(event.currentTarget.value)}
                 >
@@ -65,10 +65,7 @@ export function AppShell({
                 </select>
               </>
             ) : (
-              <>
-                <span>Actieve klant</span>
-                <span className="AppShell__customerName">{customer.name}</span>
-              </>
+              <span className="AppShell__customerName">{customer.name}</span>
             )}
           </div>
         </div>
