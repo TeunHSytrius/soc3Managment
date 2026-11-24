@@ -625,10 +625,11 @@ De belangrijkste ontwerpdocumenten zijn:
 
 - **Functioneel Ontwerp (FO):** Beschrijft wat het platform moet doen.
 - **Technisch Ontwerp v1.3 (TO):** Beschrijft de architectuur, database, API, beveiliging en technische afspraken.
+- **Frontend-schermindeling:** [docs/frontend-schermindeling.md](docs/frontend-schermindeling.md) beschrijft de rolgebaseerde schermen, navigatie en gedeelde UI-componenten op basis van de frontendstories.
 
-Deze documenten vormen de basis voor de implementatie en bijbehorende tests.
+Het FO en TO vormen samen met de frontend-schermindeling de basis voor de implementatie en bijbehorende tests.
 
-De documenten zijn nog niet opgenomen in `docs/`. Voeg de actuele, voor het team vrijgegeven versies toe.
+Het FO en TO zijn nog niet opgenomen in `docs/`. Voeg de actuele, voor het team vrijgegeven versies toe.
 
 ### 8.2 Ontwikkelvolgorde
 

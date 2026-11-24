@@ -1,191 +1,257 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+.AppShell {
+  --shell-text: #1f2937;
+  --shell-muted: #526174;
+  --shell-border: #d7dee8;
+  --shell-surface: #fff;
+  --shell-page: #f3f6fa;
+  --shell-accent: #1d4ed8;
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+  min-height: 100vh;
+  color: var(--shell-text);
+  background: var(--shell-page);
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
+.AppShell__header {
+  color: #f8fafc;
+  background: #14243a;
 }
 
-#center {
+.AppShell__topbar {
   display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 1440px;
+  min-height: 4.25rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.AppShell__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: inherit;
+  font-size: 1.15rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.AppShell__brandMark {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
   place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  border-radius: 0.5rem;
+  color: #14243a;
+  background: #93c5fd;
+  font-size: 0.85rem;
 }
 
-#next-steps {
+.AppShell__mobileToggle {
+  display: none;
+  margin-left: auto;
+  border: 1px solid #53647a;
+  border-radius: 0.375rem;
+  padding: 0.45rem 0.7rem;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.AppMenu {
   display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
+  align-items: stretch;
+  gap: 0.25rem;
+  margin-left: auto;
 }
 
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
+.AppMenu__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 4.25rem;
+  border-bottom: 3px solid transparent;
+  padding: 0 0.8rem;
+  color: #d7e0ec;
+  font-weight: 600;
+  text-decoration: none;
 }
 
-#next-steps ul {
-  list-style: none;
-  padding: 0;
+.AppMenu__link:hover {
+  color: #fff;
+  background: rgb(255 255 255 / 7%);
+}
+
+.AppMenu__link[aria-current='page'] {
+  border-bottom-color: #93c5fd;
+  color: #fff;
+}
+
+.AppShell__context {
   display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  max-width: 1440px;
+  min-height: 3.75rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+  color: #e2e8f0;
+  font-size: 0.875rem;
+}
 
-  .logo {
-    height: 18px;
-  }
+.AppShell__user,
+.AppShell__customer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
+.AppShell__userName {
+  font-weight: 650;
+}
 
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
+.AppShell__role {
+  border: 1px solid #53647a;
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
+  color: #dbeafe;
+}
 
-  @media (max-width: 1024px) {
-    margin-top: 20px;
+.AppShell__customer label {
+  color: #cbd5e1;
+}
+
+.AppShell__customer select {
+  min-height: 2.25rem;
+  border: 1px solid #53647a;
+  border-radius: 0.375rem;
+  padding: 0.3rem 2rem 0.3rem 0.6rem;
+  color: #f8fafc;
+  background: #20344f;
+  font: inherit;
+}
+
+.AppShell__customerName {
+  font-weight: 650;
+}
+
+.AppShell__content {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+.PageHeader {
+  margin-bottom: 1.5rem;
+}
+
+.PageHeader__breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--shell-muted);
+  font-size: 0.875rem;
+}
+
+.PageHeader__breadcrumb:not(:last-child)::after {
+  content: '/';
+  margin-left: 0.5rem;
+  color: #8491a3;
+}
+
+.PageHeader__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.PageHeader__title {
+  margin: 0;
+  color: var(--shell-text);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+
+.PageHeader__description {
+  margin-top: 0.45rem;
+  color: var(--shell-muted);
+}
+
+.PageHeader__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.AppShell :focus-visible,
+.PageState :focus-visible {
+  outline: 3px solid #60a5fa;
+  outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  .AppShell__topbar {
     flex-wrap: wrap;
-    justify-content: center;
+    min-height: 3.75rem;
+    padding: 0 1rem;
+  }
 
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
+  .AppShell__mobileToggle {
+    display: inline-flex;
+    align-items: center;
+  }
 
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
+  .AppMenu {
+    display: none;
+    flex-basis: 100%;
+    flex-direction: column;
+    margin: 0 -1rem;
+    padding: 0.25rem 1rem 0.75rem;
+  }
+
+  .AppMenu--open {
+    display: flex;
+  }
+
+  .AppMenu__link {
+    min-height: 2.75rem;
+    border-bottom: 0;
+    border-left: 3px solid transparent;
+    padding: 0 0.75rem;
+  }
+
+  .AppMenu__link[aria-current='page'] {
+    border-left-color: #93c5fd;
+  }
+
+  .AppShell__context {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.65rem 1.25rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .AppShell__content {
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  .PageHeader__row {
+    flex-direction: column;
   }
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-}
-
-.ticks {
-  position: relative;
-  width: 100%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
-}
-
-.HeaderLogo {
-  width: 50px;
-  height: auto;
-  margin-left: 20px;
-  align-self: left;
 }
