@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klantenbeheer - SOC</title>
+    <link rel="stylesheet" href="klantenbeheer.css">
+</head>
+<body>
+
+    <header class="bovenbalk">
+        <div class="bovenbalk-inhoud">
+            <span class="logo">SOC | Beheer</span>
+            <a href="index.html" class="terug">Terug naar dashboard</a>
+        </div>
+    </header>
+
+    <main>
+        <h1>Klantenbeheer</h1>
+        <p class="intro">Beheer hier de klantorganisaties van het SOC.</p>
+
+        <div class="indeling">
+
+            <!-- Klantenoverzicht -->
+            <section class="kaart">
+                <h2>Klantenoverzicht</h2>
+
+                <div class="tabel-scroll">
+                    <table>
+                        <tr>
+                            <th>Naam</th>
+                            <th>Status</th>
+                            <th>Actie</th>
+                        </tr>
+                        <tr>
+                            <td>Bedrijf A</td>
+                            <td><span class="status actief">Actief</span></td>
+                            <td><button class="knop klein">Deactiveren</button></td>
+                        </tr>
+                        <tr>
+                            <td>Bedrijf B</td>
+                            <td><span class="status actief">Actief</span></td>
+                            <td><button class="knop klein">Deactiveren</button></td>
+                        </tr>
+                        <tr>
+                            <td>Bedrijf C</td>
+                            <td><span class="status inactief">Gedeactiveerd</span></td>
+                            <td><button class="knop klein" disabled>Gedeactiveerd</button></td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Nieuwe klant aanmaken -->
+            <section class="kaart">
+                <h2>Nieuwe klant</h2>
+                <p class="uitleg">Voeg een nieuwe klantorganisatie toe.</p>
+
+                <form>
+                    <label for="klantNaam">Naam klantorganisatie *</label>
+                    <input type="text" id="klantNaam" placeholder="Naam klant" required>
+
+                    <button type="button" class="knop primair formulier-knop">
+                        Klant aanmaken
+                    </button>
+                </form>
+            </section>
+
+        </div>
+    </main>
+<script src="klantenbeheer.js"></script>
+</body>
+</html>

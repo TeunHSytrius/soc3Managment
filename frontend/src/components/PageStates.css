@@ -1,0 +1,73 @@
+.PageState {
+  max-width: 46rem;
+  margin: 0 auto;
+  border: 1px solid #b8b8b8;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  color: #4a4a4a;
+  background: #fff;
+}
+
+.PageState h2 {
+  margin: 0 0 0.5rem;
+  color: #4a4a4a;
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: normal;
+}
+
+.PageState p {
+  color: #626262;
+}
+
+.PageState--loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 0;
+  padding: 1rem 0;
+  color: #626262;
+  background: transparent;
+}
+
+.PageState__spinner {
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid #d2d2d2;
+  border-top-color: #555;
+  border-radius: 50%;
+  animation: PageState-spin 0.8s linear infinite;
+}
+
+.PageState--error,
+.PageState--denied {
+  border-left: 4px solid #b42318;
+}
+
+.PageState__button {
+  margin-top: 1rem;
+  border: 0;
+  border-radius: 0.375rem;
+  padding: 0.55rem 0.85rem;
+  color: #fff;
+  background: #444;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.PageState__button:hover {
+  background: #303030;
+}
+
+@keyframes PageState-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .PageState__spinner {
+    animation-duration: 2s;
+  }
+}

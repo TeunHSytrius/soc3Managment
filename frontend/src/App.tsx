@@ -1,9 +1,61 @@
+import { useState } from 'react';
+import { AppShell } from './components/AppShell';
+import type { CustomerOption } from './components/AppShell';
+import { EmptyState } from './components/PageStates';
+import { PageHeader } from './components/PageHeader';
+import Klantenbeheer from './components/Klantenbeheer';
+
+const demoCustomers: CustomerOption[] = [
+  { id: 'demo-a', name: 'Klantnaam A' },
+  { id: 'demo-b', name: 'Klantnaam B' },
+];
+
+const navigationItems = [
+  { label: 'Alerts', href: '/alerts' },
+  { label: 'Cases', href: '/cases' },
+  { label: 'Klantenbeheer', href: '/admin/customers' },
+];
+
 function App() {
+  const [activeCustomer, setActiveCustomer] = useState(demoCustomers[0]);
+  const isCustomerManagementPage = window.location.pathname === '/admin/customers';
+
+  function handleCustomerChange(customerId: string) {
+    const customer = demoCustomers.find((item) => item.id === customerId);
+
+    if (!customer) {
+      throw new Error(`Unknown demo customer: ${customerId}`);
+    }
+
+    setActiveCustomer(customer);
+  }
+
   return (
-    <main>
-      <h1>SOC Casemanagementplatform</h1>
-      <p>Frontend succesvol gestart.</p>
-    </main>
+    <AppShell
+      user={{ displayName: 'Gebruikersnaam', role: 'Account' }}
+      customer={activeCustomer}
+      customerOptions={demoCustomers}
+      onCustomerChange={handleCustomerChange}
+      navigationItems={navigationItems}
+    >
+      <PageHeader
+        title={isCustomerManagementPage ? 'Klantenbeheer' : 'SOC3'}
+        description={
+          isCustomerManagementPage
+            ? 'Beheer de klantorganisaties van het SOC-platform.'
+            : 'Gedeelde basisinterface voor het SOC-platform.'
+        }
+      />
+
+      {isCustomerManagementPage ? (
+        <Klantenbeheer />
+      ) : (
+        <EmptyState
+          title="De schermen worden per story opgebouwd"
+          description="Dit is een voorbeeldweergave. Gebruiker, rol en klantcontext zijn testgegevens; er is nog geen router, authenticatie of API-koppeling."
+        />
+      )}
+    </AppShell>
   );
 }
 
