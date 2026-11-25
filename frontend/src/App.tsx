@@ -1,10 +1,7 @@
+import LoginPage from "./features/auth/LoginPage";
+
 function App() {
-  return (
-    <main>
-      <h1>SOC Casemanagementplatform</h1>
-      <p>Frontend succesvol gestart.</p>
-    </main>
-  );
+  return <LoginPage />;
 }
 
 export default App;
