@@ -6,8 +6,8 @@ import { PageHeader } from './components/PageHeader';
 import Klantenbeheer from './components/Klantenbeheer';
 
 const demoCustomers: CustomerOption[] = [
-  { id: 'demo-a', name: 'Voorbeeldklant A' },
-  { id: 'demo-b', name: 'Voorbeeldklant B' },
+  { id: 'demo-a', name: 'Klantnaam A' },
+  { id: 'demo-b', name: 'Klantnaam B' },
 ];
 
 const navigationItems = [
@@ -32,7 +32,7 @@ function App() {
 
   return (
     <AppShell
-      user={{ displayName: 'Voorbeeldgebruiker', role: 'SOC-analist' }}
+      user={{ displayName: 'Gebruikersnaam', role: 'Account' }}
       customer={activeCustomer}
       customerOptions={demoCustomers}
       onCustomerChange={handleCustomerChange}
