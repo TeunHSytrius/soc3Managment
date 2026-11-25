@@ -18,6 +18,8 @@ De frontend heeft nu een presentatieve basislayout, navigatiemenu en herbruikbar
 
 De onderstaande rollen komen uit US-22. De precieze rechten en verschillen worden door de backend bepaald. Navigatie-items zijn daarom permissiegestuurd, niet hard gekoppeld aan een rolnaam in de frontend.
 
+De huidige React-frontend toont het SOC3-startscherm op `/` en klantenbeheer als afzonderlijk scherm op `/admin/customers`.
+
 | Rol | Hoofdnavigatie | Belangrijkste schermen en acties |
 | --- | --- | --- |
 | Analist | Alerts, Cases, Account | Alertwachtrij met filters en FIFO-sortering; alertdetails met brongegevens en statusgeschiedenis; alert oppakken, triageren en afsluiten; case aanmaken vanuit een alert; cases onderzoeken, zoeken en bijwerken. |
@@ -147,7 +149,7 @@ Indeling in `frontend/src/components/`; de gedeelde layout en schermstatussen zi
 
 ## Implementatiegrenzen
 
-- De huidige frontend heeft nog geen router, API-koppeling of authenticatie. Kies en implementeer deze afzonderlijk; dit document schrijft geen dependency voor.
+- De huidige frontend heeft nog geen routerbibliotheek, API-koppeling of authenticatie. De routekeuze voor het startscherm en klantenbeheer is voorlopig minimaal en niet afgeschermd; kies en implementeer routering en autorisatie afzonderlijk. Dit document schrijft geen dependency voor.
 - Houd gedeelde presentatielogica in `components/` en domein-/schermlogica bij de featuremap (`features/alerts`, `features/cases`, `features/auth`); voeg voor beheer nieuwe featuremappen toe wanneer die schermen worden gebouwd.
 - De frontend mag klant- of rolcontext niet zelf kiezen buiten opties die de backend teruggeeft en mag nooit een SQL-schema selecteren.
 - Behandel routeafscherming en het verbergen van acties als UX. De backend moet toegang altijd zelfstandig afdwingen.
